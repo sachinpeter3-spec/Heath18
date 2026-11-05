@@ -2,232 +2,214 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Heath18 · Burn Planner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Heath18 Burn Planner</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
+  /* Layout: one narrow brutalist column — goal line, summary, plan calendar, settings */
   :root{
     --bg:#f2efe6; --card:#ffffff; --ink:#0a0a0a; --muted:#5b5b5b; --soft:#ece8dc;
-    --yellow:#ffd23f; --pink:#ff8fd6; --blue:#4d7cff; --red:#ff4d2e; --green:#2fd07a;
-    --sh:4px 4px 0 var(--ink);
+    --cal:#0a0a0a; --calfg:#f2efe6; --calline:#3a3a3a;
+    --yellow:#ffd23f; --pink:#ff8fd6; --blue:#4d7cff; --red:#ff4d2e; --green:#2fd07a; --onbright:#0a0a0a;
+    --display:"Archivo Black",Impact,sans-serif; --body:"Space Grotesk",system-ui,sans-serif; --mono:"Space Mono",ui-monospace,monospace;
   }
   @media (prefers-color-scheme: dark){
-    :root{
-      --bg:#0e0e0e; --card:#171717; --ink:#f2efe6; --muted:#a3a3a3; --soft:#232323;
-    }
+    :root:not([data-theme="light"]){ --bg:#0e0e0e; --card:#171717; --ink:#f2efe6; --muted:#a3a3a3; --soft:#232323; --cal:#000000; --calline:#333333; color-scheme:dark }
   }
+  :root[data-theme="dark"]{ --bg:#0e0e0e; --card:#171717; --ink:#f2efe6; --muted:#a3a3a3; --soft:#232323; --cal:#000000; --calline:#333333; color-scheme:dark }
+
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 "Space Grotesk",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-  .wrap{max-width:1000px;margin:0 auto;padding:24px 16px 60px}
-  .mono{font-family:"Space Mono",ui-monospace,monospace}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 var(--body);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:560px;margin:0 auto;padding-block:20px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:18px}
+  header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:3px solid var(--ink);padding-bottom:10px}
+  h1{font:400 44px/.85 var(--display);margin:0;letter-spacing:-.03em;text-transform:uppercase}
+  h1 span{background:var(--yellow);color:var(--onbright);padding:0 5px;border:3px solid var(--ink)}
+  .tag{font:700 10px var(--mono);text-transform:uppercase;letter-spacing:.06em;text-align:right}
+  .box{background:var(--card);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
 
-  header{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:3px solid var(--ink);padding-bottom:12px;margin-bottom:22px;gap:12px}
-  h1{font:400 clamp(40px,9vw,72px)/.85 "Archivo Black",sans-serif;margin:0;letter-spacing:-.03em;text-transform:uppercase}
-  h1 span{background:var(--yellow);color:#0a0a0a;padding:0 6px;border:3px solid var(--ink)}
-  .tag{font:700 11px "Space Mono",monospace;text-transform:uppercase;letter-spacing:.06em;text-align:right}
+  /* goal line */
+  .goal{display:grid;grid-template-columns:1fr auto 1fr auto 1.5fr;align-items:center}
+  .goal .f{position:relative;min-width:0}
+  .goal input{width:100%;min-width:0;border:0;background:transparent;color:var(--ink);font:400 22px var(--display);padding:12px 26px 12px 10px;outline:none;-webkit-appearance:none;border-radius:0}
+  .goal input[type=date]{font:700 13px var(--mono);padding:14px 8px}
+  .goal input:focus{background:var(--yellow);color:var(--onbright)}
+  .goal .u{position:absolute;right:6px;top:50%;transform:translateY(-50%);font:700 10px var(--mono);color:var(--muted);pointer-events:none}
+  .goal .sep{font:700 12px var(--mono);padding:0 6px;align-self:stretch;display:grid;place-items:center;border-left:3px solid var(--ink);border-right:3px solid var(--ink);background:var(--soft)}
+  .goal .cap{font:700 9px var(--mono);text-transform:uppercase;position:absolute;left:10px;top:4px;color:var(--muted);pointer-events:none}
 
-  .grid{display:grid;grid-template-columns:340px 1fr;gap:20px}
-  @media (max-width:840px){.grid{grid-template-columns:1fr}}
-  .stack>*+*{margin-top:20px}
-  .card{background:var(--card);border:3px solid var(--ink);box-shadow:var(--sh);padding:18px}
-  .card h2{font:700 12px "Space Mono",monospace;text-transform:uppercase;letter-spacing:.1em;margin:0 0 14px;display:flex;align-items:center;gap:8px}
-  .card h2:before{content:"";width:10px;height:10px;background:var(--ink)}
-  .form>*+*{margin-top:14px}
-  label{display:block;font:700 11px "Space Mono",monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .field{position:relative}
-  input[type=number],input[type=date]{
-    width:100%;padding:10px 12px;border:2px solid var(--ink);border-radius:0;background:var(--card);
-    color:var(--ink);font:700 16px "Space Grotesk",sans-serif;outline:none;-webkit-appearance:none}
-  input:focus{background:var(--yellow);color:#0a0a0a}
-  .unit{position:absolute;right:10px;bottom:12px;font:700 11px "Space Mono",monospace;text-transform:uppercase;pointer-events:none;color:var(--muted)}
-  .field input{padding-right:46px}
-  input[type=range]{width:100%;accent-color:var(--ink);height:22px}
-  .rangehead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-  .rangehead label{margin:0}
-  .rangehead b{font:400 22px "Archivo Black";background:var(--pink);color:#0a0a0a;border:2px solid var(--ink);padding:0 8px}
-  .toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;border:2px solid var(--ink);padding:10px 12px;cursor:pointer;user-select:none}
-  .toggle .t{font-weight:700}
-  .toggle small{display:block;font:11px "Space Mono",monospace;color:var(--muted)}
-  .toggle input{display:none}
-  .toggle .sw{font:700 12px "Space Mono",monospace;border:2px solid var(--ink);padding:3px 8px;min-width:46px;text-align:center}
-  .toggle input:checked~.sw{background:var(--blue);color:#fff}
-
-  .hero{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
-  .big{font:400 clamp(44px,8vw,64px)/.9 "Archivo Black";letter-spacing:-.03em}
-  .big small{font:700 14px "Space Mono";margin-left:6px;letter-spacing:0}
-  .pill{font:700 12px "Space Mono";text-transform:uppercase;padding:6px 10px;border:2px solid var(--ink);background:var(--green);color:#0a0a0a;box-shadow:2px 2px 0 var(--ink)}
+  /* summary */
+  .sum{padding:16px}
+  .hero{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .big{font:400 44px/.9 var(--display);letter-spacing:-.03em}
+  .big small{font:700 12px var(--mono);margin-left:4px;letter-spacing:0}
+  .pill{font:700 11px var(--mono);text-transform:uppercase;padding:5px 8px;border:2px solid var(--ink);background:var(--green);color:var(--onbright);white-space:nowrap}
   .pill.warn{background:var(--red);color:#fff}
-  .bar{height:22px;border:2px solid var(--ink);margin:18px 0 6px;background:repeating-linear-gradient(45deg,transparent 0 6px,var(--soft) 6px 12px)}
+  .bar{height:16px;border:2px solid var(--ink);margin:14px 0 6px;background:repeating-linear-gradient(45deg,transparent 0 6px,var(--soft) 6px 12px)}
   .bar i{display:block;height:100%;background:var(--yellow);border-right:2px solid var(--ink)}
-  .barlabels{display:flex;justify-content:space-between;font:700 11px "Space Mono";text-transform:uppercase;gap:8px}
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);border:2px solid var(--ink);margin-top:18px}
-  .stats.flush{margin-top:0}
-  @media (max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
-  .stat{padding:12px;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);margin:0 -2px -2px 0}
-  .stat .k{font:700 10px "Space Mono";text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px}
-  .stat .v{font:400 26px "Archivo Black";margin-top:4px;letter-spacing:-.02em}
-  .stat .v small{font:700 11px "Space Mono";letter-spacing:0}
-  .sq{display:inline-block;width:10px;height:10px;border:2px solid var(--ink);flex:none}
-  .note{font:700 12px "Space Mono";margin-top:14px;text-transform:uppercase}
+  .barl{display:flex;justify-content:space-between;font:700 10px var(--mono);text-transform:uppercase;gap:8px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);border:2px solid var(--ink);margin-top:14px}
+  .stat{padding:10px;border-right:2px solid var(--ink)}
+  .stat:last-child{border-right:0}
+  .stat .k{font:700 10px var(--mono);text-transform:uppercase;display:flex;align-items:center;gap:6px}
+  .stat .v{font:400 28px var(--display);margin-top:2px}
+  .sq{width:10px;height:10px;border:2px solid var(--ink);flex:none;display:inline-block}
+  .note{font:700 11px var(--mono);margin-top:10px;text-transform:uppercase}
 
   /* calendar */
-  .cal{background:var(--ink);color:var(--bg);border:3px solid var(--ink);box-shadow:6px 6px 0 var(--yellow);padding:18px}
-  .calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-  .calhead h3{font:400 clamp(26px,5vw,36px)/1 "Archivo Black";margin:0;text-transform:uppercase;letter-spacing:-.02em}
-  .nav{display:flex;gap:8px}
-  .nav button{width:38px;height:38px;border:2px solid var(--bg);background:transparent;color:var(--bg);font:700 18px "Space Mono";cursor:pointer}
-  .nav button:hover{background:var(--yellow);color:#0a0a0a;border-color:var(--yellow)}
-  .wk,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-  .wk div{font:700 11px "Space Mono";text-align:center;opacity:.6;padding-bottom:6px}
-  .day{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;background:none;border:0;color:inherit;padding:0;font:inherit}
-  .day .c{width:100%;max-width:48px;aspect-ratio:1;display:grid;place-items:center;border:2px solid #3a3a3a;font:400 18px "Archivo Black";position:relative}
-  .day .c .n{position:absolute;top:2px;left:4px;font:700 9px "Space Mono";opacity:.7}
-  .day .c .dotx{width:6px;height:6px;background:#3a3a3a}
-  .day .v{font:700 11px "Space Mono";opacity:.85;min-height:14px}
-  .day.fast .c{background:var(--yellow);border-color:var(--yellow);color:#0a0a0a}
-  .day.clean .c{background:var(--pink);border-color:var(--pink);color:#0a0a0a}
-  .day.eaten .c{background:#f2efe6;border-color:#f2efe6;color:#0a0a0a}
-  .day.future{opacity:.35;cursor:default}
-  .day.today .c{outline:2px dashed var(--yellow);outline-offset:3px}
-  .day.sel .c{outline:3px solid var(--blue);outline-offset:3px}
-  .detail{margin-top:16px;border:2px solid var(--bg);padding:10px 12px;font:700 13px "Space Mono";display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
-  .detail b{font-family:"Archivo Black";font-weight:400;font-size:15px}
-  .calfoot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:12px;border-top:2px dashed #3a3a3a;font:700 12px "Space Mono";text-transform:uppercase}
-  .calfoot b{color:var(--yellow)}
-  .legend{display:flex;gap:12px;flex-wrap:wrap;font:700 10px "Space Mono";text-transform:uppercase;margin-top:10px;opacity:.85}
-  .legend span{display:flex;align-items:center;gap:6px}
-  .legend i{width:12px;height:12px;display:inline-block}
+  .cal{background:var(--cal);color:var(--calfg);border:3px solid var(--ink);box-shadow:5px 5px 0 var(--yellow);padding:16px}
+  .calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .calhead h3{font:400 26px/1 var(--display);margin:0;text-transform:uppercase;letter-spacing:-.02em}
+  .nav{display:flex;gap:6px}
+  .nav button{width:36px;height:36px;border:2px solid var(--calfg);background:transparent;color:var(--calfg);font:700 18px var(--mono);cursor:pointer}
+  .nav button:hover,.nav button:focus-visible{background:var(--yellow);color:var(--onbright);border-color:var(--yellow);outline:none}
+  .wk,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+  .wk div{font:700 10px var(--mono);text-align:center;opacity:.55;padding-bottom:4px}
+  .day{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;background:none;border:0;color:inherit;padding:0;font:inherit;min-width:0}
+  .day .c{width:100%;max-width:46px;aspect-ratio:1;display:grid;place-items:center;border:2px solid var(--calline);font:400 15px var(--display);position:relative}
+  .day .c .n{position:absolute;top:1px;left:3px;font:700 9px var(--mono);opacity:.7}
+  .day .c .dotx{width:5px;height:5px;background:var(--calline)}
+  .day .v{font:700 10px var(--mono);opacity:.85;min-height:13px}
+  .day.fast .c{background:var(--yellow);border-color:var(--yellow);color:var(--onbright)}
+  .day.clean .c{background:var(--pink);border-color:var(--pink);color:var(--onbright)}
+  .day.eaten .c{background:var(--calfg);border-color:var(--calfg);color:var(--onbright)}
+  .day.pfast .c{border-color:var(--yellow);color:var(--yellow)}
+  .day.pclean .c{border-color:var(--pink);color:var(--pink)}
+  .day.miss .c{opacity:.45}
+  .day.goalday .c{background:var(--blue);border-color:var(--blue);color:#fff}
+  .day.after{opacity:.25}
+  .day.today .c{outline:2px dashed var(--yellow);outline-offset:2px}
+  .day.sel .c{outline:3px solid var(--blue);outline-offset:2px}
+  .day.goalday.sel .c{outline-color:var(--calfg)}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;font:700 9px var(--mono);text-transform:uppercase;margin-top:10px;opacity:.85}
+  .legend span{display:flex;align-items:center;gap:5px}
+  .legend i{width:11px;height:11px;display:inline-block;border:2px solid transparent}
 
-  /* log */
-  .seg{display:flex;border:2px solid var(--ink)}
-  .seg button{flex:1;border:0;border-right:2px solid var(--ink);background:var(--card);color:var(--ink);font:700 12px "Space Mono";text-transform:uppercase;padding:11px 6px;cursor:pointer}
-  .seg button:last-child{border-right:0}
-  .seg button.on[data-t=fast]{background:var(--yellow);color:#0a0a0a}
-  .seg button.on[data-t=clean]{background:var(--pink);color:#0a0a0a}
-  .seg button.on[data-t=eaten]{background:var(--ink);color:var(--bg)}
-  .logform{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
-  .logform>div{flex:1 1 150px}
-  .btn{border:3px solid var(--ink);background:var(--blue);color:#fff;font:400 16px "Archivo Black";text-transform:uppercase;padding:9px 20px;cursor:pointer;box-shadow:var(--sh)}
-  .btn:active{transform:translate(4px,4px);box-shadow:none}
-  .chk{display:inline-flex;align-items:center;gap:8px;font:700 12px "Space Mono";text-transform:uppercase;margin-top:12px;cursor:pointer}
-  .chk input{accent-color:var(--blue);width:18px;height:18px}
-  table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}
-  td{padding:9px 4px;border-top:2px solid var(--ink)}
-  td.d{font:700 12px "Space Mono";text-transform:uppercase;width:72px}
-  td.r{text-align:right;font:700 14px "Space Mono"}
-  td .x{border:2px solid var(--ink);background:none;color:var(--ink);cursor:pointer;font:700 12px "Space Mono";width:26px;height:26px}
-  td .x:hover{background:var(--red);color:#fff}
-  .empty{font:700 12px "Space Mono";text-transform:uppercase;color:var(--muted);padding:14px 0 2px}
-  .hidden{display:none!important}
+  .detail{margin-top:14px;border:2px solid var(--calfg);padding:12px}
+  .dh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .dh b{font:400 17px var(--display)}
+  .dh span{font:700 11px var(--mono);text-transform:uppercase}
+  .acts{display:grid;grid-template-columns:1fr 1fr 1.6fr;gap:6px;margin-top:10px}
+  .acts button,.ate button{border:2px solid var(--calfg);background:transparent;color:var(--calfg);font:700 12px var(--mono);text-transform:uppercase;padding:10px 4px;cursor:pointer}
+  .acts .bf:hover,.acts .bf:focus-visible{background:var(--yellow);color:var(--onbright);border-color:var(--yellow);outline:none}
+  .acts .bc:hover,.acts .bc:focus-visible{background:var(--pink);color:var(--onbright);border-color:var(--pink);outline:none}
+  .ate{display:flex}
+  .ate input{width:100%;min-width:0;border:2px solid var(--calfg);border-right:0;background:transparent;color:var(--calfg);font:700 13px var(--mono);padding:8px;outline:none;border-radius:0}
+  .ate input:focus{background:var(--calfg);color:var(--onbright)}
+  .ate button{flex:none;padding:10px 8px}
+  .ate button:hover,.ate button:focus-visible{background:var(--calfg);color:var(--onbright);outline:none}
+  .wchk{display:flex;align-items:center;gap:8px;font:700 11px var(--mono);text-transform:uppercase;margin-top:10px;cursor:pointer}
+  .wchk input{accent-color:var(--blue);width:16px;height:16px}
+  .ents{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+  .ent{display:flex;justify-content:space-between;align-items:center;font:700 12px var(--mono);text-transform:uppercase;border-top:1px dashed var(--calline);padding-top:6px}
+  .ent button{border:2px solid var(--calfg);background:none;color:var(--calfg);width:24px;height:24px;font:700 12px var(--mono);cursor:pointer}
+  .ent button:hover{background:var(--red);border-color:var(--red)}
+  .calfoot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:10px;border-top:2px dashed var(--calline);font:700 11px var(--mono);text-transform:uppercase}
+  .calfoot b{color:var(--yellow)}
+
+  /* settings */
+  details.box{padding:0}
+  summary{list-style:none;cursor:pointer;padding:14px 16px;font:700 12px var(--mono);text-transform:uppercase;letter-spacing:.08em;display:flex;justify-content:space-between}
+  summary::-webkit-details-marker{display:none}
+  summary:after{content:"+";font-size:16px}
+  details[open] summary:after{content:"−"}
+  details[open] summary{border-bottom:3px solid var(--ink)}
+  .set{padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .set .full{grid-column:1/-1}
+  label.l{display:block;font:700 10px var(--mono);text-transform:uppercase;margin-bottom:5px}
+  .fld{position:relative}
+  .set input[type=number]{width:100%;padding:9px 40px 9px 10px;border:2px solid var(--ink);background:var(--card);color:var(--ink);font:700 15px var(--body);outline:none;border-radius:0}
+  .set input:focus{background:var(--yellow);color:var(--onbright)}
+  .fld .u{position:absolute;right:8px;bottom:11px;font:700 10px var(--mono);color:var(--muted);pointer-events:none}
+  .rh{display:flex;justify-content:space-between;align-items:center}
+  .rh b{font:400 18px var(--display);background:var(--pink);color:var(--onbright);border:2px solid var(--ink);padding:0 7px}
+  input[type=range]{width:100%;accent-color:var(--ink)}
+  .tg{display:flex;align-items:center;justify-content:space-between;border:2px solid var(--ink);padding:9px 10px;cursor:pointer;font-weight:700}
+  .tg input{accent-color:var(--blue);width:18px;height:18px}
+  .per{font:700 10px var(--mono);text-transform:uppercase;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 14px}
+  .per b{color:var(--ink)}
+  @media (max-width:380px){ .goal input{font-size:18px} h1{font-size:36px} .big{font-size:36px} }
+  @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <h1>Heath<span>18</span></h1>
-    <div class="tag">Burn planner<br>1 kg = 7,700 kcal</div>
+    <div class="tag">1 kg = 7,700 kcal</div>
   </header>
 
-  <div class="grid">
-    <!-- SETUP -->
-    <div class="stack">
-      <div class="card form">
-        <h2>Goal</h2>
-        <div class="row">
-          <div class="field"><label>Current</label><input id="w0" type="number" step="0.1" value="80"><span class="unit">kg</span></div>
-          <div class="field"><label>Target</label><input id="w1" type="number" step="0.1" value="72"><span class="unit">kg</span></div>
-        </div>
-        <div><label>Target date</label><input id="date" type="date"></div>
-        <div class="field"><label>Daily burn</label><input id="tdee" type="number" step="10"><span class="unit">kcal</span></div>
-      </div>
+  <!-- one-line goal -->
+  <div class="box goal">
+    <div class="f"><span class="cap">Now</span><input id="w0" type="number" step="0.1" value="80" inputmode="decimal" aria-label="Current weight"><span class="u">KG</span></div>
+    <div class="sep">→</div>
+    <div class="f"><span class="cap">Goal</span><input id="w1" type="number" step="0.1" value="72" inputmode="decimal" aria-label="Target weight"><span class="u">KG</span></div>
+    <div class="sep">BY</div>
+    <div class="f"><input id="date" type="date" aria-label="Target date"></div>
+  </div>
 
-      <div class="card form">
-        <h2>Plan</h2>
-        <div>
-          <div class="rangehead"><label>Fasts / week</label><b id="fpwv">2</b></div>
-          <input id="fpw" type="range" min="0" max="7" value="2">
-        </div>
-        <div class="field"><label>Clean day deficit</label><input id="clean" type="number" step="50" value="500"><span class="unit">kcal</span></div>
-        <label class="toggle">
-          <span><span class="t">Water before meals</span><small>−80 kcal / meal</small></span>
-          <input id="water" type="checkbox" checked><span class="sw" id="wsw">ON</span>
-        </label>
-        <div class="field"><label>Meals / day</label><input id="meals" type="number" min="1" max="6" value="2"><span class="unit">meals</span></div>
-      </div>
+  <!-- summary -->
+  <div class="box sum">
+    <div class="hero">
+      <div class="big" id="total">0<small>KCAL</small></div>
+      <span class="pill" id="status">On track</span>
     </div>
+    <div class="bar"><i id="barDone"></i></div>
+    <div class="barl"><span id="doneLbl"></span><span id="leftLbl"></span></div>
+    <div class="stats">
+      <div class="stat"><div class="k">Days</div><div class="v" id="days">0</div></div>
+      <div class="stat"><div class="k"><span class="sq" style="background:var(--yellow)"></span>Fasts</div><div class="v" id="nFast">0</div></div>
+      <div class="stat"><div class="k"><span class="sq" style="background:var(--pink)"></span>Clean</div><div class="v" id="nClean">0</div></div>
+    </div>
+    <div class="note" id="note"></div>
+  </div>
 
-    <!-- RESULTS -->
-    <div class="stack">
-      <div class="card">
-        <h2>To burn</h2>
-        <div class="hero">
-          <div class="big" id="total">0<small>KCAL</small></div>
-          <span class="pill" id="status">On track</span>
+  <!-- plan + history calendar -->
+  <div class="cal">
+    <div class="calhead">
+      <h3 id="calTitle">Month</h3>
+      <div class="nav"><button id="prev" aria-label="Previous month">‹</button><button id="next" aria-label="Next month">›</button></div>
+    </div>
+    <div class="wk"><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div><div>S</div></div>
+    <div class="days" id="grid"></div>
+    <div class="legend">
+      <span><i style="border-color:var(--yellow)"></i>Fast</span>
+      <span><i style="border-color:var(--pink)"></i>Clean</span>
+      <span><i style="background:var(--yellow)"></i>Done</span>
+      <span><i style="background:var(--blue)"></i>Goal</span>
+      <span>🔥 Hit</span>
+    </div>
+    <div class="detail" id="detail">
+      <div class="dh"><b id="dTitle"></b><span id="dPlan"></span></div>
+      <div id="dLog">
+        <div class="acts">
+          <button class="bf" data-t="fast">Fast</button>
+          <button class="bc" data-t="clean">Clean</button>
+          <div class="ate"><input id="eaten" type="number" step="50" placeholder="kcal" inputmode="numeric" aria-label="Calories eaten"><button data-t="eaten">Ate</button></div>
         </div>
-        <div class="bar"><i id="barDone"></i></div>
-        <div class="barlabels"><span id="doneLbl">0 burned</span><span id="leftLbl">0 left</span></div>
-        <div class="stats">
-          <div class="stat"><div class="k">Days left</div><div class="v" id="days">0</div></div>
-          <div class="stat"><div class="k"><span class="sq" style="background:var(--yellow)"></span>Fasts</div><div class="v" id="nFast">0</div></div>
-          <div class="stat"><div class="k"><span class="sq" style="background:var(--pink)"></span>Clean days</div><div class="v" id="nClean">0</div></div>
-          <div class="stat"><div class="k">Per day</div><div class="v" id="perDay">0</div></div>
-        </div>
-        <div class="note" id="note"></div>
+        <label class="wchk"><input id="lw" type="checkbox" checked> Water before meals</label>
       </div>
-
-      <div class="card">
-        <h2>Per action</h2>
-        <div class="stats flush">
-          <div class="stat"><div class="k">1 fast</div><div class="v" id="vFast">0</div></div>
-          <div class="stat"><div class="k">1 clean day</div><div class="v" id="vClean">0</div></div>
-          <div class="stat"><div class="k">Fasts / 1 kg</div><div class="v" id="fPerKg">0</div></div>
-          <div class="stat"><div class="k">Fasts only</div><div class="v" id="fOnly">0</div></div>
-        </div>
-      </div>
-
-      <!-- CALENDAR -->
-      <div class="cal">
-        <div class="calhead">
-          <h3 id="calTitle">Month</h3>
-          <div class="nav"><button id="prev" aria-label="Previous month">‹</button><button id="next" aria-label="Next month">›</button></div>
-        </div>
-        <div class="wk"><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div><div>S</div></div>
-        <div class="days" id="days7"></div>
-        <div class="legend">
-          <span><i style="background:var(--yellow)"></i>Fast</span>
-          <span><i style="background:var(--pink)"></i>Clean</span>
-          <span><i style="background:#f2efe6"></i>Ate</span>
-          <span>🔥 Goal hit</span>
-        </div>
-        <div class="detail" id="detail"></div>
-        <div class="calfoot">
-          <span>🔥 <b id="litN">0</b> of <span id="monthN">0</span> days · best streak <b id="best">0</b></span>
-          <span>This week <b id="wkN">0</b> 🔥</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Log</h2>
-        <div class="logform">
-          <div><label>Date</label><input id="ld" type="date"></div>
-          <div><label>Day</label>
-            <div class="seg" id="seg">
-              <button data-t="fast" class="on">Fast</button>
-              <button data-t="clean">Clean</button>
-              <button data-t="eaten">Ate</button>
-            </div>
-          </div>
-          <div id="eatBox" class="field hidden"><label>Eaten</label><input id="eaten" type="number" step="50" placeholder="1500"><span class="unit">kcal</span></div>
-          <button class="btn" id="add">Add +</button>
-        </div>
-        <label class="chk hidden" id="lwBox"><input id="lw" type="checkbox" checked> Water before meals</label>
-        <table id="tbl"></table>
-        <div class="empty" id="empty">No entries yet.</div>
-      </div>
+      <div class="ents" id="ents"></div>
+    </div>
+    <div class="calfoot">
+      <span>🔥 <b id="litN">0</b> of <span id="monthN">0</span> days · best <b id="best">0</b></span>
+      <span>Week <b id="wkN">0</b> 🔥</span>
     </div>
   </div>
+
+  <!-- settings -->
+  <details class="box">
+    <summary>Settings</summary>
+    <div class="set">
+      <div class="fld"><label class="l" for="tdee">Daily burn</label><input id="tdee" type="number" step="10"><span class="u">KCAL</span></div>
+      <div class="fld"><label class="l" for="clean">Clean deficit</label><input id="clean" type="number" step="50" value="500"><span class="u">KCAL</span></div>
+      <div class="full"><div class="rh"><label class="l" for="fpw">Fasts / week</label><b id="fpwv">2</b></div><input id="fpw" type="range" min="0" max="7" value="2"></div>
+      <label class="tg"><span>Water first <span style="font:700 10px var(--mono);color:var(--muted)">−80/MEAL</span></span><input id="water" type="checkbox" checked></label>
+      <div class="fld"><label class="l" for="meals">Meals / day</label><input id="meals" type="number" min="1" max="6" value="2"><span class="u">MEALS</span></div>
+      <div class="per full" id="per"></div>
+    </div>
+  </details>
 </div>
 
 <script>
@@ -235,8 +217,9 @@ const KCAL_PER_KG = 7700, WATER_PER_MEAL = 80;
 const $ = id => document.getElementById(id);
 const fmt = n => Math.round(n).toLocaleString();
 const iso = d => { const z = new Date(d); z.setMinutes(z.getMinutes() - z.getTimezoneOffset()); return z.toISOString().slice(0,10) };
-const today = () => iso(new Date());
 const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d) };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d) };
+const today = () => iso(new Date());
 const short = n => n >= 1000 ? (n/1000).toFixed(1).replace(/\.0$/,'') + 'k' : String(Math.round(n));
 const store = {
   get(k,d){ try{ const v = localStorage.getItem('h18_'+k); return v ? JSON.parse(v) : d }catch(e){ return d } },
@@ -245,173 +228,126 @@ const store = {
 
 const fields = ['w0','w1','date','tdee','fpw','clean','water','meals'];
 let log = store.get('log', []);
-let type = 'fast';
-let view = new Date(); view.setDate(1);
+let view = parse(today()); view.setDate(1);
 let sel = today();
 
 const saved = store.get('cfg', null);
 if (saved) fields.forEach(f => { if (saved[f] !== undefined) $(f).type === 'checkbox' ? $(f).checked = saved[f] : $(f).value = saved[f] });
-if (!$('date').value){ const d = new Date(); d.setDate(d.getDate()+90); $('date').value = iso(d) }
+if (!$('date').value) $('date').value = addDays(today(), 90);
 if (!$('tdee').value) $('tdee').value = Math.round(+$('w0').value * 28 / 10) * 10;
-$('ld').value = today();
 
 const cfg = () => { const c = {}; fields.forEach(f => c[f] = $(f).type === 'checkbox' ? $(f).checked : $(f).value); return c };
 const waterBonus = c => c.water ? WATER_PER_MEAL * (+c.meals || 0) : 0;
-
 function deficitOf(e, c){
-  const tdee = +c.tdee || 0;
   const w = e.water ? WATER_PER_MEAL * (+c.meals || 0) : 0;
-  if (e.type === 'fast') return tdee;
+  if (e.type === 'fast') return +c.tdee || 0;
   if (e.type === 'clean') return (+c.clean || 0) + w;
-  return Math.max(0, tdee - (+e.eaten || 0)) + w;
+  return Math.max(0, (+c.tdee || 0) - (+e.eaten || 0)) + w;
 }
-
-// group log by date
 function byDay(c){
   const m = {};
-  log.forEach(e => {
-    const d = m[e.date] || (m[e.date] = { kcal:0, types:new Set(), items:[] });
-    d.kcal += deficitOf(e,c); d.types.add(e.type); d.items.push(e);
-  });
+  log.forEach(e => { const d = m[e.date] || (m[e.date] = { kcal:0, types:new Set(), items:[] }); d.kcal += deficitOf(e,c); d.types.add(e.type); d.items.push(e) });
   return m;
 }
 const mainType = t => t.has('fast') ? 'fast' : t.has('clean') ? 'clean' : 'eaten';
+const spread = (n, k) => { const s = new Set(); for (let i = 0; i < k; i++) s.add(Math.floor((i + .5) * n / k)); return s };
 
-function renderCalendar(c){
-  const days = byDay(c);
-  const goal = (+c.clean || 0) + waterBonus(c);   // a day is "lit" when it beats a clean day
-  const lit = d => days[d] && days[d].kcal >= goal;
-  const y = view.getFullYear(), mo = view.getMonth();
-  $('calTitle').textContent = view.toLocaleDateString(undefined,{month:'long',year:'numeric'});
-  const first = (new Date(y,mo,1).getDay() + 6) % 7;
-  const n = new Date(y,mo+1,0).getDate();
-  const t = today();
-  let html = '';
-  for (let i = 0; i < first; i++) html += '<div></div>';
-  for (let d = 1; d <= n; d++){
-    const k = iso(new Date(y,mo,d)), info = days[k];
-    const cls = ['day'];
-    if (info) cls.push(mainType(info.types));
-    if (k > t) cls.push('future');
-    if (k === t) cls.push('today');
-    if (k === sel) cls.push('sel');
-    const inner = lit(k) ? '🔥' : info ? '' : '<span class="dotx"></span>';
-    html += `<button class="${cls.join(' ')}" data-d="${k}"><span class="c"><span class="n">${d}</span>${inner}</span><span class="v">${info ? '−'+short(info.kcal) : k > t ? '' : '0'}</span></button>`;
-  }
-  $('days7').innerHTML = html;
-
-  // detail
-  const s = days[sel], sd = parse(sel);
-  const dl = sd.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
-  const names = { fast:'Fast', clean:'Clean', eaten:'Ate' };
-  $('detail').innerHTML = s
-    ? `<b>${dl}</b> · ${s.items.map(e => names[e.type] + (e.type==='eaten' ? ' '+fmt(e.eaten) : '')).join(' + ')} · −${fmt(s.kcal)} kcal ${lit(sel)?'🔥':''}`
-    : `<b>${dl}</b> · Nothing logged`;
-
-  // footer stats
-  const first1 = iso(new Date(y,mo,1)), last1 = iso(new Date(y,mo,n));
-  const upto = first1 > t ? 0 : last1 <= t ? n : new Date().getDate();
-  let litN = 0; for (let d = 1; d <= n; d++) if (lit(iso(new Date(y,mo,d)))) litN++;
-  $('litN').textContent = litN; $('monthN').textContent = upto;
-  const keys = Object.keys(days).filter(lit).sort();
-  let best = 0, run = 0, prev = null;
-  keys.forEach(k => { const dt = parse(k); run = prev && (dt - prev) === 864e5 ? run + 1 : 1; best = Math.max(best, run); prev = dt; });
-  $('best').textContent = best;
-  const now = new Date(), mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (now.getDay()+6)%7);
-  let wk = 0; for (let i = 0; i < 7; i++) if (lit(iso(new Date(mon.getFullYear(), mon.getMonth(), mon.getDate()+i)))) wk++;
-  $('wkN').textContent = wk;
+// Build the plan: which upcoming days are fasts and clean days
+function buildPlan(c, days, left){
+  const t = today(), list = [];
+  for (let d = t; d < c.date; d = addDays(d, 1)) if (!days[d]) list.push(d);
+  const n = list.length, vFast = +c.tdee || 0, vClean = (+c.clean || 0) + waterBonus(c);
+  const scheduled = Math.min(n, Math.round(n * c.fpw / 7));
+  const F = Math.min(scheduled, vFast ? Math.ceil(left / vFast) : 0);
+  const need = vClean > 0 ? Math.ceil(Math.max(0, left - F * vFast) / vClean) : Infinity;
+  const C = Math.min(n - F, need);
+  const fi = spread(n, F), rest = list.filter((_, i) => !fi.has(i)), ci = spread(rest.length, C);
+  const plan = {};
+  list.forEach((d, i) => { if (fi.has(i)) plan[d] = 'fast' });
+  rest.forEach((d, i) => { if (ci.has(i)) plan[d] = 'clean' });
+  return { plan, n, F, C, need, scheduled, ok: need <= n - F, vFast, vClean };
 }
 
 function render(){
   const c = cfg(); store.set('cfg', c);
   $('fpwv').textContent = c.fpw;
-  $('wsw').textContent = c.water ? 'ON' : 'OFF';
-
-  const tdee = +c.tdee || 0;
-  const kg = Math.max(0, (+c.w0) - (+c.w1));
-  const total = kg * KCAL_PER_KG;
-  const done = log.reduce((s,e) => s + deficitOf(e,c), 0);
+  const days = byDay(c), t = today();
+  const total = Math.max(0, (+c.w0) - (+c.w1)) * KCAL_PER_KG;
+  const done = Object.values(days).reduce((s,d) => s + d.kcal, 0);
   const left = Math.max(0, total - done);
-  const days = Math.max(0, Math.round((parse(c.date) - parse(today())) / 864e5));
+  const P = buildPlan(c, days, left);
+  const lit = d => days[d] && days[d].kcal >= P.vClean;
 
-  const vFast = tdee, vClean = (+c.clean || 0) + waterBonus(c);
-  const scheduled = Math.min(days, Math.round(days * c.fpw / 7));
-  const fasts = Math.min(scheduled, vFast ? Math.ceil(left / vFast) : 0);
-  const afterFasts = Math.max(0, left - fasts * vFast);
-  const cleanNeeded = vClean > 0 ? Math.ceil(afterFasts / vClean) : Infinity;
-  const freeDays = days - fasts;
-  const ok = cleanNeeded <= freeDays;
-
-  $('total').innerHTML = fmt(total) + '<small>KCAL</small>';
+  // summary
+  $('total').innerHTML = fmt(left) + '<small>KCAL LEFT</small>';
   $('barDone').style.width = total ? Math.min(100, done/total*100) + '%' : '0';
   $('doneLbl').textContent = fmt(done) + ' burned · ' + (done/KCAL_PER_KG).toFixed(1) + ' kg';
-  $('leftLbl').textContent = fmt(left) + ' left · ' + (left/KCAL_PER_KG).toFixed(1) + ' kg';
-  $('days').textContent = days;
-  $('perDay').innerHTML = (days ? fmt(left/days) : '—') + '<small> KCAL</small>';
-  $('vFast').innerHTML = fmt(vFast) + '<small> KCAL</small>';
-  $('vClean').innerHTML = fmt(vClean) + '<small> KCAL</small>';
-  $('fPerKg').textContent = vFast ? (KCAL_PER_KG / vFast).toFixed(1) : '—';
-  $('fOnly').textContent = vFast ? Math.ceil(left / vFast) : '—';
-
+  $('leftLbl').textContent = 'of ' + fmt(total) + ' · ' + (total/KCAL_PER_KG).toFixed(1) + ' kg';
+  $('days').textContent = P.n;
+  $('nFast').textContent = P.F;
+  $('nClean').textContent = P.C;
   const st = $('status'), note = $('note');
-  if (left === 0){
-    st.textContent = 'Goal reached'; st.className = 'pill';
-    $('nFast').textContent = 0; $('nClean').textContent = 0; note.textContent = '';
-  } else if (ok){
-    st.textContent = 'On track'; st.className = 'pill';
-    $('nFast').textContent = fasts; $('nClean').textContent = cleanNeeded;
-    const spare = freeDays - cleanNeeded;
-    note.textContent = spare > 0 ? '→ ' + spare + ' free days to spare' : '→ Every day counts';
-  } else {
+  if (left === 0){ st.textContent = 'Goal reached'; st.className = 'pill'; note.textContent = '' }
+  else if (P.ok){ st.textContent = 'On track'; st.className = 'pill'; const sp = P.n - P.F - P.C; note.textContent = sp > 0 ? '→ ' + sp + ' free days' : '→ Every day counts' }
+  else {
     st.textContent = 'Not reachable'; st.className = 'pill warn';
-    $('nFast').textContent = scheduled; $('nClean').textContent = freeDays;
-    const minF = vFast > vClean ? Math.ceil((left - days * vClean) / (vFast - vClean)) : Infinity;
-    note.textContent = (isFinite(minF) && minF <= days)
-      ? '→ Need ' + minF + ' fasts (' + (minF / days * 7).toFixed(1) + '/week) or a later date'
-      : '→ Pick a later date';
+    const minF = P.vFast > P.vClean ? Math.ceil((left - P.n * P.vClean) / (P.vFast - P.vClean)) : Infinity;
+    note.textContent = isFinite(minF) && minF <= P.n ? '→ Need ' + minF + ' fasts (' + (minF / P.n * 7).toFixed(1) + '/week) or a later date' : '→ Pick a later date';
   }
+  $('per').innerHTML = `<span>1 fast <b>${fmt(P.vFast)}</b></span><span>1 clean day <b>${fmt(P.vClean)}</b></span><span>Fasts / kg <b>${P.vFast ? (KCAL_PER_KG/P.vFast).toFixed(1) : '—'}</b></span>`;
 
-  renderCalendar(c);
+  // calendar
+  const y = view.getFullYear(), mo = view.getMonth(), nDays = new Date(y,mo+1,0).getDate();
+  $('calTitle').textContent = view.toLocaleDateString(undefined,{month:'short',year:'numeric'});
+  let html = '';
+  for (let i = 0, f = (new Date(y,mo,1).getDay()+6)%7; i < f; i++) html += '<div></div>';
+  for (let d = 1; d <= nDays; d++){
+    const k = iso(new Date(y,mo,d)), info = days[k], p = P.plan[k], cls = ['day'];
+    let inner = '<span class="dotx"></span>', val = '';
+    if (info){ cls.push(mainType(info.types)); inner = lit(k) ? '🔥' : ''; val = '−' + short(info.kcal) }
+    else if (k === c.date){ cls.push('goalday'); inner = '🏁'; val = 'GOAL' }
+    else if (p){ cls.push(p === 'fast' ? 'pfast' : 'pclean'); inner = p === 'fast' ? 'F' : 'C' }
+    else if (k < t){ cls.push('miss'); val = '0' }
+    else if (k > c.date) cls.push('after');
+    if (k === t) cls.push('today');
+    if (k === sel) cls.push('sel');
+    html += `<button class="${cls.join(' ')}" data-d="${k}"><span class="c"><span class="n">${d}</span>${inner}</span><span class="v">${val}</span></button>`;
+  }
+  $('grid').innerHTML = html;
 
-  const rows = [...log].sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
-  $('empty').style.display = rows.length ? 'none' : 'block';
-  const label = { fast:['Fast','var(--yellow)'], clean:['Clean','var(--pink)'], eaten:['Ate','var(--card)'] };
-  $('tbl').innerHTML = rows.map(e => {
-    const [t,col] = label[e.type];
-    const extra = e.type === 'eaten' ? ' · ' + fmt(e.eaten) + ' kcal' : '';
-    const wt = e.water && e.type !== 'fast' ? ' · <span style="color:var(--blue);font-weight:700">water</span>' : '';
-    return `<tr><td class="d">${parse(e.date).toLocaleDateString(undefined,{day:'numeric',month:'short'})}</td>
-      <td><span class="sq" style="background:${col};margin-right:8px;vertical-align:-1px"></span><b>${t}</b>${extra}${wt}</td>
-      <td class="r">−${fmt(deficitOf(e,c))}</td>
-      <td class="r" style="width:34px"><button class="x" data-id="${e.id}" title="Remove">×</button></td></tr>`;
-  }).join('');
+  // selected day
+  const s = days[sel], future = sel > t;
+  $('dTitle').textContent = parse(sel).toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short'});
+  $('dPlan').textContent = s ? '−' + fmt(s.kcal) + ' kcal' + (lit(sel) ? ' 🔥' : '')
+    : sel === c.date ? 'Goal day' : P.plan[sel] === 'fast' ? 'Plan: fast' : P.plan[sel] === 'clean' ? 'Plan: clean' : future ? 'Free' : 'Nothing logged';
+  $('dLog').hidden = future;
+  const names = { fast:'Fast', clean:'Clean', eaten:'Ate' };
+  $('ents').innerHTML = (s ? s.items : []).map(e => `<div class="ent"><span>${names[e.type]}${e.type==='eaten' ? ' ' + fmt(e.eaten) : ''}${e.water && e.type!=='fast' ? ' · water' : ''} · −${fmt(deficitOf(e,c))}</span><button data-id="${e.id}" aria-label="Remove">×</button></div>`).join('');
+
+  // footer
+  const m0 = iso(new Date(y,mo,1)), m1 = iso(new Date(y,mo,nDays));
+  $('monthN').textContent = m0 > t ? 0 : m1 <= t ? nDays : parse(t).getDate();
+  let ln = 0; for (let d = 1; d <= nDays; d++) if (lit(iso(new Date(y,mo,d)))) ln++;
+  $('litN').textContent = ln;
+  let best = 0, run = 0, prev = null;
+  Object.keys(days).filter(lit).sort().forEach(k => { run = prev && addDays(prev,1) === k ? run + 1 : 1; best = Math.max(best, run); prev = k });
+  $('best').textContent = best;
+  const mon = addDays(t, -((parse(t).getDay()+6)%7));
+  let wk = 0; for (let i = 0; i < 7; i++) if (lit(addDays(mon, i))) wk++;
+  $('wkN').textContent = wk;
 }
 
-// events
 fields.forEach(f => $(f).addEventListener('input', render));
 $('water').addEventListener('change', render);
-$('seg').addEventListener('click', ev => {
-  const b = ev.target.closest('button'); if (!b) return;
-  type = b.dataset.t;
-  [...$('seg').children].forEach(x => x.classList.toggle('on', x === b));
-  $('eatBox').classList.toggle('hidden', type !== 'eaten');
-  $('lwBox').classList.toggle('hidden', type === 'fast');
-});
-$('add').addEventListener('click', () => {
-  if (type === 'eaten' && !$('eaten').value) { $('eaten').focus(); return; }
-  const date = $('ld').value || today();
-  log.push({ id: Date.now(), date, type, eaten: type === 'eaten' ? +$('eaten').value : 0, water: type !== 'fast' && $('lw').checked });
-  store.set('log', log); $('eaten').value = '';
-  sel = date; const d = parse(date); view = new Date(d.getFullYear(), d.getMonth(), 1);
-  render();
-});
-$('tbl').addEventListener('click', ev => {
-  const b = ev.target.closest('.x'); if (!b) return;
-  log = log.filter(e => e.id !== +b.dataset.id); store.set('log', log); render();
-});
-$('days7').addEventListener('click', ev => {
-  const b = ev.target.closest('.day'); if (!b || b.classList.contains('future')) return;
-  sel = b.dataset.d; $('ld').value = sel; render();
+$('grid').addEventListener('click', ev => { const b = ev.target.closest('.day'); if (!b) return; sel = b.dataset.d; render() });
+$('detail').addEventListener('click', ev => {
+  const rm = ev.target.closest('.ent button');
+  if (rm){ log = log.filter(e => e.id !== +rm.dataset.id); store.set('log', log); render(); return }
+  const b = ev.target.closest('button[data-t]'); if (!b) return;
+  const type = b.dataset.t;
+  if (type === 'eaten' && !$('eaten').value){ $('eaten').focus(); return }
+  log.push({ id: Date.now(), date: sel, type, eaten: type === 'eaten' ? +$('eaten').value : 0, water: type !== 'fast' && $('lw').checked });
+  store.set('log', log); $('eaten').value = ''; render();
 });
 $('prev').addEventListener('click', () => { view.setMonth(view.getMonth() - 1); render() });
 $('next').addEventListener('click', () => { view.setMonth(view.getMonth() + 1); render() });
