@@ -58,4 +58,3 @@ export const defaultSettings = (): Settings => ({
   disabled: [],
 })
 
-export const useSettings = () => useStored<Settings>('os_settings', defaultSettings())

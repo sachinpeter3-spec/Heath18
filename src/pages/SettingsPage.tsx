@@ -1,7 +1,8 @@
 import { CategoryDot } from '../components/CategoryDot'
 import { ITEMS } from '../data/items'
 import { mondayOf } from '../lib/dates'
-import { useSettings, type Settings } from '../lib/store'
+import { useSettings } from '../lib/LogProvider'
+import type { Settings } from '../lib/store'
 
 const FIELDS: { key: keyof Settings; label: string; type: string }[] = [
   { key: 'programStart', label: 'Program start', type: 'date' },
