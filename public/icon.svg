@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#f2efe6"/>
+  <rect x="56" y="136" width="400" height="240" fill="#ffd23f" stroke="#0a0a0a" stroke-width="20"/>
+  <rect x="76" y="396" width="400" height="20" fill="#0a0a0a"/>
+  <rect x="456" y="156" width="20" height="260" fill="#0a0a0a"/>
+  <text x="256" y="318" text-anchor="middle" font-family="Archivo Black, Impact, sans-serif" font-size="170" fill="#0a0a0a">H18</text>
+</svg>

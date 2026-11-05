@@ -1,0 +1,15 @@
+{
+  "name": "Heath18 · Lean & Healthy OS",
+  "short_name": "Heath18",
+  "description": "What to do today, the Mon-Sun plan, and why each habit matters.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f2efe6",
+  "theme_color": "#ffd23f",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

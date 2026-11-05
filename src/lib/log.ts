@@ -36,6 +36,9 @@ export interface Ctx extends ScheduleOptions {
 
 export const WATER_TARGET_ML = 3000
 
+/** 0 → "0", 250 → "0.25", 1500 → "1.5" */
+export const litres = (ml: number) => String(+(ml / 1000).toFixed(2))
+
 /** Item codes whose value is a number stored in the day's metrics. */
 export const METRIC_FIELD: Record<string, { key: keyof DayMetrics; unit: string; step: number }> = {
   WEIGH: { key: 'weightKg', unit: 'kg', step: 0.1 },
@@ -55,7 +58,7 @@ export function allDayProgress(item: Item, date: string, m: DayMetrics, ctx: Ctx
     }
     case 'WATER': {
       const v = m.waterMl ?? 0
-      return { pct: v / WATER_TARGET_ML, label: `${(v / 1000).toFixed(2).replace(/0$/, '')} / 3 L`, met: v >= WATER_TARGET_ML }
+      return { pct: v / WATER_TARGET_ML, label: `${litres(v)} / 3 L`, met: v >= WATER_TARGET_ML }
     }
     case 'PROTEIN': {
       const { min, max } = proteinTarget(ctx.weightKg)

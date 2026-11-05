@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { iso } from './dates'
+import { MEALS, proteinOf } from '../data/meals'
+import { dowOf, iso } from './dates'
 import type { Check, Checks, Ctx, DayMetrics, LogState, Metrics } from './log'
 import { defaultSettings, useStored, type Settings } from './store'
 
@@ -34,13 +35,26 @@ export function LogProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(t)
   }, [])
 
-  const setCheck = useCallback<LogApi['setCheck']>((date, code, check) =>
+  const setCheck = useCallback<LogApi['setCheck']>((date, code, check) => {
+    // Ticking Meal 1 / Meal 2 adds that meal's protein estimate; un-ticking takes it back.
+    const meal = code === 'MEAL-1' ? 'm1' : code === 'MEAL-2' ? 'm2' : null
+    const wasDone = checks[date]?.[code]?.status === 'done'
+    const isDoneNow = check?.status === 'done'
+    if (meal && wasDone !== isDoneNow) {
+      const g = proteinOf(MEALS[dowOf(date)][meal])
+      setMetrics(prev => {
+        const cur = prev[date]?.proteinG ?? 0
+        return { ...prev, [date]: { ...(prev[date] ?? {}), proteinG: Math.max(0, cur + (isDoneNow ? g : -g)) } }
+      })
+      if (isDoneNow) check = { ...check!, value: check!.value ?? `+${g} g protein` }
+    }
     setChecks(prev => {
       const day = { ...(prev[date] ?? {}) }
       if (check) day[code] = { ...check, at: Date.now() }
       else delete day[code]
       return { ...prev, [date]: day }
-    }), [setChecks])
+    })
+  }, [checks, setChecks, setMetrics])
 
   const setMetric = useCallback<LogApi['setMetric']>((date, key, value) =>
     setMetrics(prev => ({ ...prev, [date]: { ...(prev[date] ?? {}), [key]: value } })), [setMetrics])

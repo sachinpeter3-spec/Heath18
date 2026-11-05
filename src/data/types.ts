@@ -38,9 +38,17 @@ export interface Item {
   dayNotes?: Partial<Record<Dow, string>>
 }
 
+export type Food = 'chicken' | 'mutton' | 'fish' | 'eggs' | 'paneer' | 'curd' | 'broth' | 'isabgol' | 'veg'
+
+/** One ingredient: grams for meat/fish/paneer, count for eggs, servings for the rest. */
+export type Portion = Partial<Record<Food, number>>
+
 export interface DayMeals {
   title: string
   meal1: string
   meal2: string
   prep: string
+  /** Structured portions, used for the protein estimate and the grocery list. */
+  m1: Portion
+  m2: Portion
 }

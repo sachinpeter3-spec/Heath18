@@ -1,6 +1,6 @@
-import { useState } from 'react'
 import type { Item } from '../data/types'
 import { dowOf } from '../lib/dates'
+import { useMustDos } from '../lib/focus'
 import { itemStatus } from '../lib/log'
 import { useLog } from '../lib/LogProvider'
 import { groupBySection } from '../lib/schedule'
@@ -11,9 +11,14 @@ import { TaskRow } from './TaskRow'
 /** Items that need a value, so tapping the box opens the sheet instead of ticking. */
 const NEEDS_SHEET = new Set(['POOP'])
 
-export function DayList({ items, date }: { items: Item[]; date: string }) {
+export function DayList({ items, date, open, setOpen }: {
+  items: Item[]
+  date: string
+  open: Item | null
+  setOpen: (i: Item | null) => void
+}) {
   const log = useLog()
-  const [open, setOpen] = useState<Item | null>(null)
+  const [must] = useMustDos(date)
   const { sections } = groupBySection(items)
   const dow = dowOf(date)
 
@@ -36,6 +41,7 @@ export function DayList({ items, date }: { items: Item[]; date: string }) {
                 item={i}
                 status={itemStatus(i, date, log.now, log, log.ctx)}
                 note={i.dayNotes?.[dow]}
+                mustDo={must.includes(i.code)}
                 onToggle={() => toggle(i)}
                 onOpen={() => setOpen(i)}
               />

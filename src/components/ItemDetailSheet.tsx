@@ -5,6 +5,10 @@ import { allDayProgress, itemContext, itemStatus, METRIC_FIELD, TEXT_VALUE } fro
 import { useLog } from '../lib/LogProvider'
 import { AllDayControl } from './AllDayGoals'
 import { CategoryDot } from './CategoryDot'
+import { FocusTimer } from './FocusTimer'
+import { GroceryList } from './GroceryList'
+import { WeeklyReview } from './WeeklyReview'
+import { PhotoCapture } from './Photos'
 import { PoopLogger } from './PoopLogger'
 import { StatusTag } from './TaskRow'
 import { Button } from './ui/button'
@@ -70,6 +74,10 @@ export function ItemDetailSheet({ item, date, onClose }: { item: Item | null; da
       </Block>
       <Block label="Tip">{item.detail.tip}</Block>
 
+      {item.code === 'FOCUS' && <Block label="Focus check-in"><FocusTimer date={date} /></Block>}
+      {item.code === 'REVIEW' && <Block label="This week"><WeeklyReview date={date} /></Block>}
+      {item.code === 'PHOTO' && <Block label="Today's photos"><PhotoCapture date={date} /></Block>}
+      {item.code === 'GROCERY' && <Block label="Shopping"><GroceryList date={date} /></Block>}
       {isAllDay && (
         <Block label="Today's target"><AllDayControl item={item} date={date} /></Block>
       )}

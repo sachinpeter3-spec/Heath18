@@ -14,10 +14,11 @@ export function StatusTag({ status }: { status: Status }) {
   return t ? <span className={`cap border-2 border-ink px-1.5 ${t.cls}`}>{t.text}</span> : null
 }
 
-export function TaskRow({ item, status, note, onToggle, onOpen }: {
+export function TaskRow({ item, status, note, mustDo, onToggle, onOpen }: {
   item: Item
   status: Status
   note?: string
+  mustDo?: boolean
   onToggle: () => void
   onOpen: () => void
 }) {
@@ -38,7 +39,7 @@ export function TaskRow({ item, status, note, onToggle, onOpen }: {
       <span className="cap pt-1.5">{item.time}</span>
       <button type="button" onClick={onOpen} className="min-w-0 cursor-pointer border-0 bg-transparent p-0 pt-1 text-left text-ink">
         <span className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
-          <b className={`font-bold ${done ? 'text-muted line-through' : ''}`}>{item.title}</b>
+          <b className={`font-bold ${done ? 'text-muted line-through' : ''}`}>{mustDo && <span className="mr-1 bg-yellow px-1 text-black" title="Must-do today">★</span>}{item.title}</b>
           <span className="flex items-center gap-2">
             <StatusTag status={status === 'done' ? 'pending' : status} />
             <CategoryDot category={item.category} />

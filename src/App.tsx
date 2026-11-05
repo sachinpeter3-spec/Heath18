@@ -1,5 +1,6 @@
 import { NavLink, Route, Routes } from 'react-router-dom'
 import { Disclaimer } from './components/Disclaimer'
+import { Reminders } from './components/Reminders'
 import DayPage from './pages/DayPage'
 import FoodPage from './pages/FoodPage'
 import ProgressPage from './pages/ProgressPage'
@@ -49,6 +50,7 @@ export default function App() {
         </Routes>
       </main>
       <Disclaimer />
+      <Reminders />
     </div>
   )
 }
