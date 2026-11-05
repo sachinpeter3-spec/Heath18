@@ -1,0 +1,3 @@
+{
+  "rewrites": [{ "source": "/((?!burn/|assets/).*)", "destination": "/index.html" }]
+}

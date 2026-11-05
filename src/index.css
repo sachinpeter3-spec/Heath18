@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* Brutalist tokens carried over from the original Heath18 planner. */
+@theme {
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-soft: var(--soft);
+  --color-yellow: #ffd23f;
+  --color-pink: #ff8fd6;
+  --color-blue: #4d7cff;
+  --color-red: #ff4d2e;
+  --color-green: #2fd07a;
+  --color-amber: #ffb020;
+  --font-display: "Archivo Black", Impact, sans-serif;
+  --font-body: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+}
+
+:root { --bg:#f2efe6; --card:#ffffff; --ink:#0a0a0a; --muted:#5b5b5b; --soft:#ece8dc; color-scheme: light }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#0e0e0e; --card:#171717; --ink:#f2efe6; --muted:#a3a3a3; --soft:#232323; color-scheme: dark }
+}
+:root[data-theme="dark"] { --bg:#0e0e0e; --card:#171717; --ink:#f2efe6; --muted:#a3a3a3; --soft:#232323; color-scheme: dark }
+
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.4 var(--font-body); -webkit-font-smoothing: antialiased }
+
+@utility box { background: var(--card); border: 3px solid var(--ink); box-shadow: 4px 4px 0 var(--ink) }
+@utility cap { font: 700 10px var(--font-mono); text-transform: uppercase; letter-spacing: .06em }
