@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heath18 · Burn Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --text:#0f172a; --muted:#64748b; --line:#e5e7eb;
+    --accent:#0f766e; --accent-soft:#ccfbf1; --warn:#b45309; --warn-soft:#fef3c7;
+    --fast:#4f46e5; --clean:#0f766e; --water:#0284c7; --normal:#94a3b8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0b0f14; --card:#121821; --text:#e5e7eb; --muted:#8b97a8; --line:#1f2937;
+      --accent:#2dd4bf; --accent-soft:#0f2e2b; --warn:#fbbf24; --warn-soft:#2b2210;
+      --fast:#818cf8; --clean:#2dd4bf; --water:#38bdf8; --normal:#475569;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 16px 60px}
+  header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px}
+  h1{font-size:20px;font-weight:700;margin:0;letter-spacing:-.01em}
+  h1 span{color:var(--accent)}
+  .sub{color:var(--muted);font-size:13px}
+  .grid{display:grid;grid-template-columns:340px 1fr;gap:16px}
+  @media (max-width:820px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .card h2{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 14px}
+  .stack>*+*{margin-top:16px}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .field{position:relative}
+  input[type=number],input[type=date],select{
+    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:transparent;
+    color:var(--text);font:inherit;outline:none}
+  input:focus,select:focus{border-color:var(--accent)}
+  .unit{position:absolute;right:12px;bottom:10px;color:var(--muted);font-size:13px;pointer-events:none}
+  .field input{padding-right:44px}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  .rangehead{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .rangehead b{color:var(--text);font-weight:600}
+  .toggle{display:flex;align-items:center;justify-content:space-between;font-size:14px}
+  .toggle small{display:block;color:var(--muted);font-size:12px}
+  .switch{position:relative;width:40px;height:22px;flex:none}
+  .switch input{opacity:0;width:0;height:0}
+  .switch span{position:absolute;inset:0;background:var(--line);border-radius:22px;cursor:pointer;transition:.2s}
+  .switch span:before{content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+  .switch input:checked+span{background:var(--accent)}
+  .switch input:checked+span:before{transform:translateX(18px)}
+  .hero{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .big{font-size:38px;font-weight:700;letter-spacing:-.02em;line-height:1}
+  .big small{font-size:15px;color:var(--muted);font-weight:500;margin-left:4px}
+  .pill{font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+  .pill.warn{background:var(--warn-soft);color:var(--warn)}
+  .bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin:16px 0 6px;display:flex}
+  .bar i{display:block;height:100%}
+  .barlabels{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+  @media (max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{border:1px solid var(--line);border-radius:12px;padding:12px}
+  .stat .k{font-size:12px;color:var(--muted)}
+  .stat .v{font-size:22px;font-weight:700;margin-top:2px}
+  .stat .v small{font-size:12px;color:var(--muted);font-weight:500}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
+  .note{font-size:13px;color:var(--muted);margin-top:14px}
+  .logform{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+  .logform>div{flex:1 1 140px}
+  .logform>.btn{flex:0 0 auto}
+  .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .seg button{flex:1;border:0;background:transparent;color:var(--muted);font:inherit;font-size:13px;padding:10px 6px;cursor:pointer}
+  .seg button.on{background:var(--accent);color:#fff}
+  .btn{border:0;background:var(--text);color:var(--card);font:inherit;font-weight:600;padding:10px 16px;border-radius:10px;cursor:pointer}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding:10px 0;cursor:pointer}
+  .chk input{accent-color:var(--water);width:16px;height:16px}
+  table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}
+  td{padding:9px 4px;border-top:1px solid var(--line)}
+  td.r{text-align:right;font-variant-numeric:tabular-nums}
+  td .x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px}
+  .empty{color:var(--muted);font-size:13px;padding:14px 0 2px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Heath<span>18</span></h1>
+    <div class="sub">1 kg ≈ 7,700 kcal</div>
+  </header>
+
+  <div class="grid">
+    <!-- SETUP -->
+    <div class="card stack">
+      <h2>Goal</h2>
+      <div class="row">
+        <div class="field"><label>Current</label><input id="w0" type="number" step="0.1" value="80"><span class="unit">kg</span></div>
+        <div class="field"><label>Target</label><input id="w1" type="number" step="0.1" value="72"><span class="unit">kg</span></div>
+      </div>
+      <div><label>Target date</label><input id="date" type="date"></div>
+      <div class="field"><label>Daily burn (maintenance)</label><input id="tdee" type="number" step="10"><span class="unit">kcal</span></div>
+
+      <h2 style="margin-top:24px">Plan</h2>
+      <div>
+        <div class="rangehead"><span>Fasts per week</span><b id="fpwv">2</b></div>
+        <input id="fpw" type="range" min="0" max="7" value="2">
+      </div>
+      <div class="field"><label>Clean eating deficit</label><input id="clean" type="number" step="50" value="500"><span class="unit">kcal</span></div>
+      <div class="toggle">
+        <div>Water before meals<small>≈ −80 kcal per meal</small></div>
+        <label class="switch"><input id="water" type="checkbox" checked><span></span></label>
+      </div>
+      <div class="field"><label>Meals per day</label><input id="meals" type="number" min="1" max="6" value="2"><span class="unit">meals</span></div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="stack">
+      <div class="card">
+        <h2>To burn</h2>
+        <div class="hero">
+          <div class="big" id="total">0<small>kcal</small></div>
+          <span class="pill" id="status">On track</span>
+        </div>
+        <div class="bar"><i id="barDone" style="background:var(--accent)"></i></div>
+        <div class="barlabels"><span id="doneLbl">0 burned</span><span id="leftLbl">0 left</span></div>
+
+        <div class="stats">
+          <div class="stat"><div class="k">Days left</div><div class="v" id="days">0</div></div>
+          <div class="stat"><div class="k"><span class="dot" style="background:var(--fast)"></span>Fasts</div><div class="v" id="nFast">0</div></div>
+          <div class="stat"><div class="k"><span class="dot" style="background:var(--clean)"></span>Clean days</div><div class="v" id="nClean">0</div></div>
+          <div class="stat"><div class="k">Per day</div><div class="v" id="perDay">0<small> kcal</small></div></div>
+        </div>
+        <div class="note" id="note"></div>
+      </div>
+
+      <div class="card">
+        <h2>Per action</h2>
+        <div class="stats" style="margin-top:0">
+          <div class="stat"><div class="k">1 fast</div><div class="v" id="vFast">0<small> kcal</small></div></div>
+          <div class="stat"><div class="k">1 clean day</div><div class="v" id="vClean">0<small> kcal</small></div></div>
+          <div class="stat"><div class="k">Fasts for 1 kg</div><div class="v" id="fPerKg">0</div></div>
+          <div class="stat"><div class="k">Fasts only</div><div class="v" id="fOnly">0</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Log</h2>
+        <div class="logform">
+          <div><label>Date</label><input id="ld" type="date"></div>
+          <div><label>Day</label>
+            <div class="seg" id="seg">
+              <button data-t="fast" class="on">Fast</button>
+              <button data-t="clean">Clean</button>
+              <button data-t="eaten">Ate</button>
+            </div>
+          </div>
+          <div id="eatBox" class="field hidden"><label>Eaten</label><input id="eaten" type="number" step="50" placeholder="1500"><span class="unit">kcal</span></div>
+          <button class="btn" id="add">Add</button>
+        </div>
+        <label class="chk" id="lwBox"><input id="lw" type="checkbox" checked> Water before meals</label>
+        <table id="tbl"></table>
+        <div class="empty" id="empty">No entries yet.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const KCAL_PER_KG = 7700, WATER_PER_MEAL = 80;
+const $ = id => document.getElementById(id);
+const fmt = n => Math.round(n).toLocaleString();
+const today = () => new Date().toISOString().slice(0,10);
+const store = {
+  get(k,d){ try{ const v = localStorage.getItem('h18_'+k); return v ? JSON.parse(v) : d }catch(e){ return d } },
+  set(k,v){ try{ localStorage.setItem('h18_'+k, JSON.stringify(v)) }catch(e){} }
+};
+
+const fields = ['w0','w1','date','tdee','fpw','clean','water','meals'];
+let log = store.get('log', []);
+let type = 'fast';
+
+// defaults
+const saved = store.get('cfg', null);
+if (saved) fields.forEach(f => { if (saved[f] !== undefined) $(f).type === 'checkbox' ? $(f).checked = saved[f] : $(f).value = saved[f] });
+if (!$('date').value){ const d = new Date(); d.setDate(d.getDate()+90); $('date').value = d.toISOString().slice(0,10) }
+if (!$('tdee').value) $('tdee').value = Math.round(+$('w0').value * 28 / 10) * 10;
+$('ld').value = today();
+
+function cfg(){
+  const c = {}; fields.forEach(f => c[f] = $(f).type === 'checkbox' ? $(f).checked : $(f).value); return c;
+}
+const waterBonus = c => c.water ? WATER_PER_MEAL * (+c.meals || 0) : 0;
+
+function deficitOf(e, c){
+  const tdee = +c.tdee || 0;
+  const w = e.water ? WATER_PER_MEAL * (+c.meals || 0) : 0;
+  if (e.type === 'fast') return tdee;
+  if (e.type === 'clean') return (+c.clean || 0) + w;
+  return Math.max(0, tdee - (+e.eaten || 0)) + w;
+}
+
+function render(){
+  const c = cfg(); store.set('cfg', c);
+  $('fpwv').textContent = c.fpw;
+
+  const tdee = +c.tdee || 0;
+  const kg = Math.max(0, (+c.w0) - (+c.w1));
+  const total = kg * KCAL_PER_KG;
+  const done = log.reduce((s,e) => s + deficitOf(e,c), 0);
+  const left = Math.max(0, total - done);
+  const days = Math.max(0, Math.ceil((new Date(c.date) - new Date(today())) / 864e5));
+
+  const vFast = tdee, vClean = (+c.clean || 0) + waterBonus(c);
+  const fasts = Math.min(days, Math.round(days * c.fpw / 7), vFast ? Math.ceil(left / vFast) : 0);
+  const afterFasts = Math.max(0, left - fasts * vFast);
+  const cleanNeeded = vClean > 0 ? Math.ceil(afterFasts / vClean) : Infinity;
+  const freeDays = days - fasts;
+  const ok = cleanNeeded <= freeDays;
+
+  $('total').innerHTML = fmt(total) + '<small>kcal</small>';
+  $('barDone').style.width = total ? Math.min(100, done/total*100) + '%' : '0';
+  $('doneLbl').textContent = fmt(done) + ' burned · ' + (done/KCAL_PER_KG).toFixed(1) + ' kg';
+  $('leftLbl').textContent = fmt(left) + ' left · ' + (left/KCAL_PER_KG).toFixed(1) + ' kg';
+  $('days').textContent = days;
+  $('perDay').innerHTML = (days ? fmt(left/days) : '—') + '<small> kcal</small>';
+  $('vFast').innerHTML = fmt(vFast) + '<small> kcal</small>';
+  $('vClean').innerHTML = fmt(vClean) + '<small> kcal</small>';
+  $('fPerKg').textContent = vFast ? (KCAL_PER_KG / vFast).toFixed(1) : '—';
+  $('fOnly').textContent = vFast ? Math.ceil(left / vFast) : '—';
+
+  const st = $('status'), note = $('note');
+  if (left === 0){
+    st.textContent = 'Goal reached'; st.className = 'pill';
+    $('nFast').textContent = 0; $('nClean').textContent = 0; note.textContent = '';
+  } else if (ok){
+    st.textContent = 'On track'; st.className = 'pill';
+    $('nFast').textContent = fasts;
+    $('nClean').textContent = cleanNeeded;
+    const spare = freeDays - cleanNeeded;
+    note.textContent = spare > 0 ? spare + ' free days to spare.' : 'Every day counts.';
+  } else {
+    st.textContent = 'Not reachable'; st.className = 'pill warn';
+    $('nFast').textContent = Math.min(days, Math.round(days * c.fpw / 7));
+    $('nClean').textContent = freeDays;
+    // min fasts needed if all other days are clean
+    const minF = vFast > vClean ? Math.ceil((left - days * vClean) / (vFast - vClean)) : Infinity;
+    const perWk = days ? (minF / days * 7) : 0;
+    note.textContent = (minF <= days && isFinite(minF))
+      ? 'Need ' + minF + ' fasts (' + perWk.toFixed(1) + '/week) or a later date.'
+      : 'Pick a later date.';
+  }
+
+  // log table
+  const rows = [...log].sort((a,b) => b.date.localeCompare(a.date));
+  $('empty').style.display = rows.length ? 'none' : 'block';
+  const label = { fast:['Fast','--fast'], clean:['Clean','--clean'], eaten:['Ate','--normal'] };
+  $('tbl').innerHTML = rows.map(e => {
+    const [t,col] = label[e.type];
+    const extra = e.type === 'eaten' ? ' · ' + fmt(e.eaten) + ' kcal' : '';
+    const wt = e.water && e.type !== 'fast' ? ' · <span style="color:var(--water)">water</span>' : '';
+    return `<tr><td style="color:var(--muted)">${new Date(e.date).toLocaleDateString(undefined,{day:'numeric',month:'short'})}</td>
+      <td><span class="dot" style="background:var(${col})"></span>${t}${extra}${wt}</td>
+      <td class="r">−${fmt(deficitOf(e,c))}</td>
+      <td class="r" style="width:30px"><button class="x" data-id="${e.id}" title="Remove">×</button></td></tr>`;
+  }).join('');
+}
+
+// events
+fields.forEach(f => $(f).addEventListener('input', render));
+$('seg').addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  type = b.dataset.t;
+  [...$('seg').children].forEach(x => x.classList.toggle('on', x === b));
+  $('eatBox').classList.toggle('hidden', type !== 'eaten');
+  $('lwBox').classList.toggle('hidden', type === 'fast');
+});
+$('lwBox').classList.add('hidden');
+$('add').addEventListener('click', () => {
+  if (type === 'eaten' && !$('eaten').value) { $('eaten').focus(); return; }
+  log.push({ id: Date.now(), date: $('ld').value || today(), type,
+             eaten: type === 'eaten' ? +$('eaten').value : 0,
+             water: type !== 'fast' && $('lw').checked });
+  store.set('log', log); $('eaten').value = ''; render();
+});
+$('tbl').addEventListener('click', ev => {
+  const b = ev.target.closest('.x'); if (!b) return;
+  log = log.filter(e => e.id !== +b.dataset.id); store.set('log', log); render();
+});
+render();
+</script>
+</body>
+</html>
